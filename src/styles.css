@@ -1,14 +1,18 @@
 /* You can add global styles to this file, and also import other style files */
 .btn {
-  background-color: blue;
+  color: red;
 }
 .btn-sm {
+  font-weight: bold;
   background-color: rgb(247, 170, 170);
 }
 .btn-lg {
+  font-weight: bold;
   background-color: rgb(152, 248, 152);
 }
 .btn {
+  color: green;
+  font-weight: 400;
   background-color: white;
 }
 p {
