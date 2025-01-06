@@ -1,10 +1,10 @@
-import { Pipe, PipeTransform } from "@angular/core";
+import * as angular from "@angular/core";
 
-@Pipe({
+@angular.Pipe({
   name: "markdown",
   standalone: true,
 })
-export class MarkdownPipe implements PipeTransform {
+export class MarkdownPipe implements angular.PipeTransform {
   async transform(content: string): Promise<string> {
     const { marked } = await import("marked");
     return marked(content, { sanitize: true });

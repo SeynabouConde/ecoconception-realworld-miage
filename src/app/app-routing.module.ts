@@ -1,10 +1,10 @@
-import { inject, NgModule } from "@angular/core";
-import { Routes, RouterModule, PreloadAllModules } from "@angular/router";
-import { UserService } from "./core/services/user.service";
-import { map } from "rxjs/operators";
-import { ProfileComponent } from "./features/profile/profile.component";
+import * as angular from "@angular/core";
+import * as router from "@angular/router";
+import * as userService from "./core/services/user.service";
+import * as rxjsOperators from "rxjs/operators";
+import * as profile from "./features/profile/profile.component";
 
-const routes: Routes = [
+const routes: router.Routes = [
   {
     path: "",
     loadComponent: () =>
@@ -15,7 +15,7 @@ const routes: Routes = [
     loadComponent: () =>
       import("./core/auth/auth.component").then((m) => m.AuthComponent),
     canActivate: [
-      () => inject(UserService).isAuthenticated.pipe(map((isAuth) => !isAuth)),
+      () => angular.inject(userService.UserService).isAuthenticated.pipe(rxjsOperators.map((isAuth) => !isAuth)),
     ],
   },
   {
@@ -23,7 +23,7 @@ const routes: Routes = [
     loadComponent: () =>
       import("./core/auth/auth.component").then((m) => m.AuthComponent),
     canActivate: [
-      () => inject(UserService).isAuthenticated.pipe(map((isAuth) => !isAuth)),
+      () => angular.inject(userService.UserService).isAuthenticated.pipe(rxjsOperators.map((isAuth) => !isAuth)),
     ],
   },
   {
@@ -32,14 +32,14 @@ const routes: Routes = [
       import("./features/settings/settings.component").then(
         (m) => m.SettingsComponent
       ),
-    canActivate: [() => inject(UserService).isAuthenticated],
+    canActivate: [() => angular.inject(userService.UserService).isAuthenticated],
   },
   {
     path: "profile",
     children: [
       {
         path: ":username",
-        component: ProfileComponent,
+        component: profile.ProfileComponent,
         children: [
           {
             path: "",
@@ -68,7 +68,7 @@ const routes: Routes = [
           import("./features/editor/editor.component").then(
             (m) => m.EditorComponent
           ),
-        canActivate: [() => inject(UserService).isAuthenticated],
+        canActivate: [() => angular.inject(userService.UserService).isAuthenticated],
       },
       {
         path: ":slug",
@@ -76,7 +76,7 @@ const routes: Routes = [
           import("./features/editor/editor.component").then(
             (m) => m.EditorComponent
           ),
-        canActivate: [() => inject(UserService).isAuthenticated],
+        canActivate: [() => angular.inject(userService.UserService).isAuthenticated],
       },
     ],
   },
@@ -89,12 +89,12 @@ const routes: Routes = [
   },
 ];
 
-@NgModule({
+@angular.NgModule({
   imports: [
-    RouterModule.forRoot(routes, {
-      preloadingStrategy: PreloadAllModules,
+    router.RouterModule.forRoot(routes, {
+      preloadingStrategy: router.PreloadAllModules,
     }),
   ],
-  exports: [RouterModule],
+  exports: [router.RouterModule],
 })
 export class AppRoutingModule {}

@@ -1,56 +1,51 @@
-import { Component, OnDestroy, OnInit } from "@angular/core";
-import {
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from "@angular/forms";
-import { Router } from "@angular/router";
-import { User } from "../../core/models/user.model";
-import { UserService } from "../../core/services/user.service";
-import { ListErrorsComponent } from "../../shared/list-errors.component";
-import { Errors } from "../../core/models/errors.model";
-import { Subject } from "rxjs";
-import { takeUntil } from "rxjs/operators";
+import * as angular from "@angular/core";
+import * as forms from "@angular/forms";
+import * as router from "@angular/router";
+import * as user from "../../core/models/user.model";
+import * as userService from "../../core/services/user.service";
+import * as listErrors from "../../shared/list-errors.component";
+import * as errors from "../../core/models/errors.model";
+import * as rxjs from "rxjs";
+import * as rxjsOperators from "rxjs/operators";
 
 interface SettingsForm {
-  image: FormControl<string>;
-  username: FormControl<string>;
-  bio: FormControl<string>;
-  email: FormControl<string>;
-  password: FormControl<string>;
+  image: forms.FormControl<string>;
+  username: forms.FormControl<string>;
+  bio: forms.FormControl<string>;
+  email: forms.FormControl<string>;
+  password: forms.FormControl<string>;
 }
 
-@Component({
+@angular.Component({
   selector: "app-settings-page",
   templateUrl: "./settings.component.html",
-  imports: [ListErrorsComponent, ReactiveFormsModule],
+  imports: [listErrors.ListErrorsComponent, forms.ReactiveFormsModule],
   standalone: true,
 })
-export class SettingsComponent implements OnInit, OnDestroy {
-  user!: User;
-  settingsForm = new FormGroup<SettingsForm>({
-    image: new FormControl("", { nonNullable: true }),
-    username: new FormControl("", { nonNullable: true }),
-    bio: new FormControl("", { nonNullable: true }),
-    email: new FormControl("", { nonNullable: true }),
-    password: new FormControl("", {
-      validators: [Validators.required],
+export class SettingsComponent implements angular.OnInit, angular.OnDestroy {
+  user!: user.User;
+  settingsForm = new forms.FormGroup<SettingsForm>({
+    image: new forms.FormControl("", { nonNullable: true }),
+    username: new forms.FormControl("", { nonNullable: true }),
+    bio: new forms.FormControl("", { nonNullable: true }),
+    email: new forms.FormControl("", { nonNullable: true }),
+    password: new forms.FormControl("", {
+      validators: [forms.Validators.required],
       nonNullable: true,
     }),
   });
-  errors: Errors | null = null;
+  errors: errors.Errors | null = null;
   isSubmitting = false;
-  destroy$ = new Subject<void>();
+  destroy$ = new rxjs.Subject<void>();
 
   constructor(
-    private readonly router: Router,
-    private readonly userService: UserService
+    private readonly router: router.Router,
+    private readonly userService: userService.UserService
   ) {}
 
   ngOnInit(): void {
     this.settingsForm.patchValue(
-      this.userService.getCurrentUser() as Partial<User>
+      this.userService.getCurrentUser() as Partial<user.User>
     );
   }
 
@@ -68,7 +63,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     this.userService
       .update(this.settingsForm.value)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(rxjsOperators.takeUntil(this.destroy$))
       .subscribe({
         next: ({ user }) =>
           void this.router.navigate(["/profile/", user.username]),

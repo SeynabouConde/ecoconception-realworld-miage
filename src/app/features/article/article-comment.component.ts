@@ -1,24 +1,24 @@
-import { Component, EventEmitter, Input, Output, inject } from "@angular/core";
-import { UserService } from "../../core/services/user.service";
-import { User } from "../../core/models/user.model";
-import { RouterLink } from "@angular/router";
-import { map } from "rxjs/operators";
-import { Comment } from "../../core/models/comment.model";
-import { AsyncPipe, DatePipe, NgIf } from "@angular/common";
+import * as angular from "@angular/core";
+import * as userService from "../../core/services/user.service";
+import * as user from "../../core/models/user.model";
+import * as router from "@angular/router";
+import * as rxjsOperators from "rxjs/operators";
+import * as comment from "../../core/models/comment.model";
+import * as common from "@angular/common";
 
-@Component({
+@angular.Component({
   selector: "app-article-comment",
   templateUrl: "./article-comment.component.html",
-  imports: [RouterLink, DatePipe, NgIf, AsyncPipe],
+  imports: [router.RouterLink, common.DatePipe, common.NgIf, common.AsyncPipe],
   standalone: true,
 })
 export class ArticleCommentComponent {
-  @Input() comment!: Comment;
-  @Output() delete = new EventEmitter<boolean>();
+  @angular.Input() comment!: comment.Comment;
+  @angular.Output() delete = new angular.EventEmitter<boolean>();
 
-  canModify$ = inject(UserService).currentUser.pipe(
-    map(
-      (userData: User | null) =>
+  canModify$ = angular.inject(userService.UserService).currentUser.pipe(
+    rxjsOperators.map(
+      (userData: user.User | null) =>
         userData?.username === this.comment.author.username
     )
   );

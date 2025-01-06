@@ -1,57 +1,57 @@
-import { Component, inject, OnDestroy, OnInit } from "@angular/core";
-import { Router } from "@angular/router";
-import { TagsService } from "../../core/services/tags.service";
-import { ArticleListConfig } from "../../core/models/article-list-config.model";
-import { AsyncPipe, NgClass, NgForOf } from "@angular/common";
-import { ArticleListComponent } from "../../shared/article-helpers/article-list.component";
-import { takeUntil, tap } from "rxjs/operators";
-import { Subject } from "rxjs";
-import { UserService } from "../../core/services/user.service";
-import { LetDirective } from "@rx-angular/template/let";
-import { ShowAuthedDirective } from "../../shared/show-authed.directive";
+import * as angular from "@angular/core";
+import * as router from "@angular/router";
+import * as tagsService from "../../core/services/tags.service";
+import * as articleConfig from "../../core/models/article-list-config.model";
+import * as common from "@angular/common";
+import * as articleList from "../../shared/article-helpers/article-list.component";
+import * as rxjsOperators from "rxjs/operators";
+import * as rxjs from "rxjs";
+import * as userService from "../../core/services/user.service";
+import * as letDirective from "@rx-angular/template/let";
+import * as showAuthed from "../../shared/show-authed.directive";
 
-@Component({
+@angular.Component({
   selector: "app-home-page",
   templateUrl: "./home.component.html",
   styleUrls: ["./home.component.css"],
   imports: [
-    NgClass,
-    ArticleListComponent,
-    AsyncPipe,
-    LetDirective,
-    NgForOf,
-    ShowAuthedDirective,
+    common.NgClass,
+    articleList.ArticleListComponent,
+    common.AsyncPipe,
+    letDirective.LetDirective,
+    common.NgForOf,
+    showAuthed.ShowAuthedDirective,
   ],
   standalone: true,
 })
-export class HomeComponent implements OnInit, OnDestroy {
+export class HomeComponent implements angular.OnInit, angular.OnDestroy {
   isAuthenticated = false;
-  listConfig: ArticleListConfig = {
+  listConfig: articleConfig.ArticleListConfig = {
     type: "all",
     filters: {},
   };
-  tags$ = inject(TagsService)
+  tags$ = angular.inject(tagsService.TagsService)
     .getAll()
-    .pipe(tap(() => (this.tagsLoaded = true)));
+    .pipe(rxjsOperators.tap(() => (this.tagsLoaded = true)));
   tagsLoaded = false;
-  destroy$ = new Subject<void>();
+  destroy$ = new rxjs.Subject<void>();
 
   constructor(
-    private readonly router: Router,
-    private readonly userService: UserService
+    private readonly router: router.Router,
+    private readonly userService: userService.UserService
   ) {}
 
   ngOnInit(): void {
     this.userService.isAuthenticated
       .pipe(
-        tap((isAuthenticated) => {
+        rxjsOperators.tap((isAuthenticated) => {
           if (isAuthenticated) {
             this.setListTo("feed");
           } else {
             this.setListTo("all");
           }
         }),
-        takeUntil(this.destroy$)
+        rxjsOperators.takeUntil(this.destroy$)
       )
       .subscribe(
         (isAuthenticated: boolean) => (this.isAuthenticated = isAuthenticated)
@@ -64,13 +64,11 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   setListTo(type: string = "", filters: Object = {}): void {
-    // If feed is requested but user is not authenticated, redirect to login
     if (type === "feed" && !this.isAuthenticated) {
       void this.router.navigate(["/login"]);
       return;
     }
 
-    // Otherwise, set the list object
     this.listConfig = { type: type, filters: filters };
   }
 }

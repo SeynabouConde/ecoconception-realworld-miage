@@ -1,6 +1,6 @@
-import { Component } from "@angular/core";
+import * as angular from "@angular/core";
 
-@Component({
+@angular.Component({
   selector: "app-root",
   templateUrl: "./app.component.html",
 })

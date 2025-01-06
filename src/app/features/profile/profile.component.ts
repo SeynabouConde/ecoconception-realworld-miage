@@ -1,56 +1,50 @@
-import { Component, OnDestroy, OnInit } from "@angular/core";
-import {
-  ActivatedRoute,
-  Router,
-  RouterLink,
-  RouterLinkActive,
-  RouterOutlet,
-} from "@angular/router";
-import { catchError, switchMap, takeUntil } from "rxjs/operators";
-import { combineLatest, of, Subject, throwError } from "rxjs";
-import { UserService } from "../../core/services/user.service";
-import { Profile } from "../../core/models/profile.model";
-import { ProfileService } from "../../core/services/profile.service";
-import { FollowButtonComponent } from "../../shared/buttons/follow-button.component";
-import { AsyncPipe, NgIf } from "@angular/common";
+import * as angular from "@angular/core";
+import * as router from "@angular/router";
+import * as rxjsOperators from "rxjs/operators";
+import * as rxjs from "rxjs";
+import * as userService from "../../core/services/user.service";
+import * as profile from "../../core/models/profile.model";
+import * as profileService from "../../core/services/profile.service";
+import * as followButton from "../../shared/buttons/follow-button.component";
+import * as common from "@angular/common";
 
-@Component({
+@angular.Component({
   selector: "app-profile-page",
   templateUrl: "./profile.component.html",
   imports: [
-    FollowButtonComponent,
-    NgIf,
-    RouterLink,
-    AsyncPipe,
-    RouterLinkActive,
-    RouterOutlet,
+    followButton.FollowButtonComponent,
+    common.NgIf,
+    router.RouterLink,
+    common.AsyncPipe,
+    router.RouterLinkActive,
+    router.RouterOutlet,
   ],
   standalone: true,
 })
-export class ProfileComponent implements OnInit, OnDestroy {
-  profile!: Profile;
+export class ProfileComponent implements angular.OnInit, angular.OnDestroy {
+  profile!: profile.Profile;
   isUser: boolean = false;
-  destroy$ = new Subject<void>();
+  destroy$ = new rxjs.Subject<void>();
 
   constructor(
-    private readonly route: ActivatedRoute,
-    private readonly router: Router,
-    private readonly userService: UserService,
-    private readonly profileService: ProfileService
+    private readonly route: router.ActivatedRoute,
+    private readonly router: router.Router,
+    private readonly userService: userService.UserService,
+    private readonly profileService: profileService.ProfileService
   ) {}
 
   ngOnInit() {
     this.profileService
       .get(this.route.snapshot.params["username"])
       .pipe(
-        catchError((error) => {
+        rxjsOperators.catchError((error) => {
           void this.router.navigate(["/"]);
-          return throwError(() => error);
+          return rxjs.throwError(() => error);
         }),
-        switchMap((profile) => {
-          return combineLatest([of(profile), this.userService.currentUser]);
+        rxjsOperators.switchMap((profile) => {
+          return rxjs.combineLatest([rxjs.of(profile), this.userService.currentUser]);
         }),
-        takeUntil(this.destroy$)
+        rxjsOperators.takeUntil(this.destroy$)
       )
       .subscribe(([profile, user]) => {
         this.profile = profile;
@@ -63,7 +57,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  onToggleFollowing(profile: Profile) {
+  onToggleFollowing(profile: profile.Profile) {
     this.profile = profile;
   }
 }
