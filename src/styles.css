@@ -1,1 +1,13 @@
 /* You can add global styles to this file, and also import other style files */
+.btn {
+  background-color: blue;
+}
+.btn-sm {
+  background-color: rgb(247, 170, 170);
+}
+.btn-lg {
+  background-color: rgb(152, 248, 152);
+}
+.btn {
+  background-color: white;
+}
