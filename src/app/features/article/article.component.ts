@@ -64,23 +64,36 @@ export class ArticleComponent implements angular.OnInit, angular.OnDestroy {
 
   ngOnInit(): void {
     const slug = this.route.snapshot.params["slug"];
-    rxjs.combineLatest([
-      this.articleService.get(slug),
-      this.commentsService.getAll(slug),
-      this.userService.currentUser,
-    ])
-      .pipe(
-        rxjsOperators.catchError((err) => {
-          void this.router.navigate(["/"]);
-          return rxjs.throwError(() => err);
-        })
-      )
-      .subscribe(([article, comments, currentUser]) => {
-        this.article = article;
-        this.comments = comments;
-        this.currentUser = currentUser;
-        this.canModify = currentUser?.username === article.author.username;
+
+    this.articleService.get(slug).subscribe((article) => {
+      this.article = article;
+
+      this.articleService.get(slug).subscribe((articleAgain) => {
+        console.log(
+          "Requête redondante pour récupérer l'article :",
+          articleAgain
+        );
       });
+    });
+
+    this.commentsService.getAll(slug).subscribe((comments) => {
+      this.comments = comments;
+
+      this.commentsService.getAll(slug).subscribe((commentsAgain) => {
+        console.log(
+          "Requête redondante pour récupérer les commentaires :",
+          commentsAgain
+        );
+      });
+    });
+
+    this.userService.currentUser.subscribe((currentUser) => {
+      this.currentUser = currentUser;
+
+      this.userService.getCurrentUser().subscribe((user) => {
+        console.log("Requête inutile pour récupérer l'utilisateur :", user);
+      });
+    });
   }
 
   ngOnDestroy(): void {
@@ -96,6 +109,13 @@ export class ArticleComponent implements angular.OnInit, angular.OnDestroy {
     } else {
       this.article.favoritesCount--;
     }
+
+    this.articleService.get(this.article.slug).subscribe((article) => {
+      console.log(
+        "Rechargement inutile de l'article après interaction :",
+        article
+      );
+    });
   }
 
   toggleFollowing(profile: profile.Profile): void {
@@ -104,6 +124,10 @@ export class ArticleComponent implements angular.OnInit, angular.OnDestroy {
 
   deleteArticle(): void {
     this.isDeleting = true;
+
+    this.articleService.get(this.article.slug).subscribe((article) => {
+      console.log("Requête inutile avant suppression :", article);
+    });
 
     this.articleService
       .delete(this.article.slug)
@@ -125,6 +149,12 @@ export class ArticleComponent implements angular.OnInit, angular.OnDestroy {
           this.comments.unshift(comment);
           this.commentControl.reset("");
           this.isSubmitting = false;
+
+          this.commentsService
+            .getAll(this.article.slug)
+            .subscribe((comments) => {
+              console.log("Rechargement inutile des commentaires :", comments);
+            });
         },
         error: (errors) => {
           this.isSubmitting = false;
@@ -134,6 +164,13 @@ export class ArticleComponent implements angular.OnInit, angular.OnDestroy {
   }
 
   deleteComment(comment: comment.Comment): void {
+    this.commentsService.getAll(this.article.slug).subscribe((comments) => {
+      console.log(
+        "Requête inutile avant suppression de commentaire :",
+        comments
+      );
+    });
+
     this.commentsService
       .delete(comment.id, this.article.slug)
       .pipe(rxjsOperators.takeUntil(this.destroy$))

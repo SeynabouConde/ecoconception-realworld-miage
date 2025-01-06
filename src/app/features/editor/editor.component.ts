@@ -18,7 +18,11 @@ interface ArticleForm {
 @angular.Component({
   selector: "app-editor-page",
   templateUrl: "./editor.component.html",
-  imports: [listErrors.ListErrorsComponent, forms.ReactiveFormsModule, common.NgForOf],
+  imports: [
+    listErrors.ListErrorsComponent,
+    forms.ReactiveFormsModule,
+    common.NgForOf,
+  ],
   standalone: true,
 })
 export class EditorComponent implements angular.OnInit, angular.OnDestroy {
@@ -43,15 +47,28 @@ export class EditorComponent implements angular.OnInit, angular.OnDestroy {
 
   ngOnInit() {
     if (this.route.snapshot.params["slug"]) {
-      rxjs.combineLatest([
-        this.articleService.get(this.route.snapshot.params["slug"]),
-        this.userService.getCurrentUser(),
-      ])
+      this.articleService
+        .get(this.route.snapshot.params["slug"])
+        .subscribe((article) => {
+          console.log("Requête redondante  :", article);
+          this.articleForm.patchValue(article);
+          this.tagList = article.tagList;
+        });
+
+      rxjs
+        .combineLatest([
+          this.articleService.get(this.route.snapshot.params["slug"]),
+          this.userService.getCurrentUser(),
+        ])
         .pipe(rxjsOperators.takeUntil(this.destroy$))
         .subscribe(([article, { user }]) => {
           if (user.username === article.author.username) {
-            this.tagList = article.tagList;
             this.articleForm.patchValue(article);
+            this.tagList = article.tagList;
+
+            this.userService.getCurrentUser().subscribe((userAgain) => {
+              console.log("Requête inutile pour l'utilisateur :", userAgain);
+            });
           } else {
             void this.router.navigate(["/"]);
           }
