@@ -11,3 +11,23 @@
 .btn {
   background-color: white;
 }
+p {
+  line-height: 1;
+  font-size: 8px;
+  text-align: justify;
+  color: #999;
+  background-color: #fff;
+}
+h1 {
+  line-height: 1;
+  font-size: 12px;
+  text-align: justify;
+  color: #999;
+  background-color: #fff;
+}
+h4 {
+  line-height: 1;
+  font-size: 10px;
+  text-align: justify;
+  color: #999;
+}
