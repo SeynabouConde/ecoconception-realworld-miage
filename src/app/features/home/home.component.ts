@@ -15,7 +15,16 @@ import { inject } from "@angular/core";
 @angular.Component({
   selector: "app-home-page",
   templateUrl: "./home.component.html",
-  styleUrls: ["./home.component.css"],
+  styles: [
+    ` 
+      .nav-link {
+        cursor: pointer;
+      }
+      .tag-pill {
+        cursor: pointer;
+      }
+    `,
+  ],
   imports: [
     common.NgClass,
     articleList.ArticleListComponent,
